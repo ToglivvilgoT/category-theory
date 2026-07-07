@@ -6,6 +6,6 @@ class Program
 {
     public static void Main(string[] args)
     {
-        Chapter2.Run();
+        Chapter4.Run();
     }
 }
