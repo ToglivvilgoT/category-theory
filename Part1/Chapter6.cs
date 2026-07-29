@@ -10,6 +10,7 @@ public static class Chapter6
         {
             Just<A> justA => new Left<A, Unit>(justA.value),
             Nothing<A> _ => new Right<A, Unit>(Unit.unit),
+            _ => throw new Exception(),
         };
     }
 
@@ -19,6 +20,7 @@ public static class Chapter6
         {
             Left<A, Unit> left => new Just<A>(left.value),
             Right<A, Unit> => new Nothing<A>(),
+            _ => throw new Exception(),
         };
     }
 
@@ -26,14 +28,11 @@ public static class Chapter6
     {
         var (boolean, a) = value;
 
-        if (boolean)
+        return boolean switch
         {
-            return new Left<A, A>(a);
-        }
-        else
-        {
-            return new Right<A, A>(a);
-        }
+            true => new Left<A, A>(a),
+            false => new Right<A, A>(a),
+        };
     }
 
     private static (bool, A) Convert4<A>(Either<A, A> value)
@@ -42,6 +41,7 @@ public static class Chapter6
         {
             Left<A, A> left => (true, left.value),
             Right<A, A> right => (false, right.value),
+            _ => throw new Exception(),
         };
     }
 }
