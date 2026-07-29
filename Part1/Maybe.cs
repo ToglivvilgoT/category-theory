@@ -1,82 +1,60 @@
 namespace category_theory.Part1;
 
-public class Maybe<T>
+public abstract class Maybe<T>
 {
-    private readonly bool valid;
-    private readonly T? value;
-
-    public Maybe()
+    public Maybe<T> Return(T value)
     {
-        valid = false;
+        return new Just<T>(value);
     }
 
-    public Maybe(T value)
+    public Maybe<T> Join(Maybe<Maybe<T>> mmt)
     {
-        valid = true;
-        this.value = value;
-    }
-
-    public Maybe<R> Map<R>(Func<T, R> f)
-    {
-        if (valid)
+        return mmt switch
         {
-            return new(f(value!));
-        }
-        else
-        {
-            return new();
-        }
-    }
-
-    public Maybe<R> Bind<R>(Func<T, Maybe<R>> f)
-    {
-        if (!valid)
-        {
-            return new();
-        }
-        else
-        {
-            return f(value!);
-        }
-    } 
-
-    public static Func<A, Maybe<C>> Fish<A, B, C>(Func<A, Maybe<B>> f, Func<B, Maybe<C>> g)
-    {
-        return a =>
-        {
-            var maybeB = f(a);
-            if (!maybeB.valid)
-            {
-                return new();
-            }
-            else 
-            {
-                return g(maybeB.value!);
-            }
+            Just<Maybe<T>> jmt => jmt.value,
+            Nothing<Maybe<T>> _ => new Nothing<T>(),
+            _ => throw new Exception("There can only be Just or Nothing"),
         };
     }
 
-    public static Maybe<A> Join<A>(Maybe<Maybe<A>> mma)
-    {
-        if (!mma.valid)
-        {
-            return new();
-        }
-        else
-        {
-            return mma.value!;
-        }
-    }
+    public abstract Maybe<A> Map<A>(Func<T, A> f);
 
-    public override string ToString()
+    public abstract Maybe<A> Bind<A>(Func<T, Maybe<A>> f);
+}
+
+public static class Maybe
+{
+    public static Func<A, Maybe<C>> Fish<A, B, C>(Func<A, Maybe<B>> f, Func<B, Maybe<C>> g)
     {
-        if (valid)
-        {
-            return "Just " + value;
-        }
-        else
-        {
-            return "Nothing";
-        }
+        return a => f(a).Bind(g);
     }
 }
+
+public class Just<T>(T value) : Maybe<T>
+{
+    public readonly T value = value;
+
+    public override Maybe<A> Bind<A>(Func<T, Maybe<A>> f)
+    {
+        return f(value);
+    }
+
+    public override Maybe<A> Map<A>(Func<T, A> f)
+    {
+        return new Just<A>(f(value));
+    }
+}
+
+public class Nothing<T>() : Maybe<T>
+{
+    public override Maybe<A> Bind<A>(Func<T, Maybe<A>> f)
+    {
+        return new Nothing<A>();
+    }
+
+    public override Maybe<A> Map<A>(Func<T, A> f)
+    {
+        return new Nothing<A>();
+    }
+}
+

@@ -6,25 +6,25 @@ public static class Chapter4
     {
         if (a == 0)
         {
-            return new();
+            return new Nothing<double>();
         }
         
-        return new(1 / a);
+        return new Just<double>(1 / a);
     }
 
     private static Maybe<double> SafeRoot(double a)
     {
         if (a < 0)
         {
-            return new();
+            return new Nothing<double>();
         }
 
-        return new(Math.Sqrt(a));
+        return new Just<double>(Math.Sqrt(a));
     }
 
     private static Maybe<double> SafeRootReciprocal(double a)
     {
-        var f = Maybe<double>.Fish<double, double, double>(SafeReciprocal, SafeRoot);
+        var f = Maybe.Fish<double, double, double>(SafeReciprocal, SafeRoot);
         return f(a);
     }
 
